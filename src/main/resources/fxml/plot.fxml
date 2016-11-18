@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.Pane?>
+
+<fx:root fx:id="pane" prefHeight="0" prefWidth="0" type="Pane" xmlns="http://javafx.com/javafx/8.0.91" xmlns:fx="http://javafx.com/fxml/1">
+    <Canvas fx:id="canvas" height="100" width="100" />
+    <NumberAxis autoRanging="false" side="BOTTOM" fx:id="xAxis" />
+    <NumberAxis fx:id="yAxis" autoRanging="false" side="LEFT" />
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+</fx:root>

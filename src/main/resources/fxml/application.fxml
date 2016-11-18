@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import hu.elte.databasesystems.util.Plot?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import org.controlsfx.control.NotificationPane?>
+<?import org.controlsfx.control.StatusBar?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.91" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hu.elte.databasesystems.AppController">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem fx:id="loadMenuItem" mnemonicParsing="false" onAction="#handleLoadButton" text="Load" />
+                        <MenuItem fx:id="closeAppItem" mnemonicParsing="false" onAction="#handleCloseButton" text="Close" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <bottom>
+        <StatusBar fx:id="statusBar" text=""></StatusBar>
+    </bottom>
+    <center>
+        <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+            <ButtonBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="278.0">
+               <buttons>
+                      <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartButton" text="Start">
+                          <opaqueInsets>
+                              <Insets />
+                          </opaqueInsets>
+                      </Button>
+                  <Button mnemonicParsing="false" text="⏹" />
+                  <Button mnemonicParsing="false" text="▶" />
+                  <Button mnemonicParsing="false" text="▶▶" />
+               </buttons>
+            </ButtonBar>
+            <Separator prefWidth="500.0">
+               <opaqueInsets>
+                  <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+               </opaqueInsets>
+            </Separator>
+                <Plot fx:id="plot" />
+                <GridPane fx:id="buttonGrid" />
+            </children>
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+         </padding>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+        </VBox>
+    </center>
+</BorderPane>

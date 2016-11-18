@@ -47,6 +47,13 @@
 
 
     <dependencies>
+
+        <!-- R*-tree -->
+        <dependency>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>rtree</artifactId>
+            <version>0.8-RC10</version>
+        </dependency>
     
         <!-- MigLayout -->
 
@@ -54,6 +61,12 @@
             <groupId>com.miglayout</groupId>
             <artifactId>miglayout-javafx</artifactId>
             <version>4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>8.40.12</version>
         </dependency>
 
 
