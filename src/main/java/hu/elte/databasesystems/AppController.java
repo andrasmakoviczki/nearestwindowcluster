@@ -1,6 +1,11 @@
 package hu.elte.databasesystems;
 
 import hu.elte.databasesystems.model.DataObject;
+import hu.elte.databasesystems.model.RTree;
+import hu.elte.databasesystems.model.rtree.Entry;
+import hu.elte.databasesystems.model.rtree.geometry.Geometry;
+import hu.elte.databasesystems.model.rtree.geometry.Point;
+import hu.elte.databasesystems.model.rtree.geometry.Rectangle;
 import hu.elte.databasesystems.util.Plot;
 import hu.elte.databasesystems.util.ReadFromFile;
 import javafx.application.Platform;
@@ -26,12 +31,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static java.lang.Math.abs;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 16..
+ * Created by Andras Makoviczki on 2016. 11. 16.
  */
 public class AppController implements Initializable {
     private static final Logger log = LoggerFactory.getLogger(AppController.class);
@@ -41,14 +47,59 @@ public class AppController implements Initializable {
     @FXML private Stage stage;
     @FXML private Plot plot;
     @FXML private StatusBar statusBar;
-    GraphicsContext gc;
+    private GraphicsContext gc;
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
+        test();
         initPlot(500,8);
     }
 
-    public void initPlot(Integer defaultSize, Integer range) {
+    public void test(){
+        /*Entry<Integer, DataObject> e1 = new Entry<Integer, DataObject>(1,new DataObject(1,2,"alma"));
+        Entry<Integer, DataObject> e2 = new Entry<Integer, DataObject>(2,new DataObject(2,5,"korte"));
+        Entry<Integer, DataObject> e3 = new Entry<Integer, DataObject>(1,new DataObject(3,2,"szilva"));
+        Entry<Integer, DataObject> e4 = new Entry<Integer, DataObject>(2,new DataObject(4,5,"barack"));
+        Entry<Integer, DataObject> e5 = new Entry<Integer, DataObject>(1,new DataObject(5,2,"eper"));
+        Entry<Integer, DataObject> e6 = new Entry<Integer, DataObject>(2,new DataObject(6,5,"szolo"));
+
+        RTree<Object, Rectangle> tree = new RTree();
+        tree.add(e1);
+        tree.add(e2);
+        tree.add(e3);
+        tree.add(e4);
+        tree.add(e5);
+        tree.add(e6);*/
+
+        /*DataObject[] points = { new DataObject(-5,-6,""),new DataObject(-1,3,""),
+                new DataObject(4,4,""),new DataObject(-6,-3,""),new DataObject(8,-10,""),
+                new DataObject(5,4,""),new DataObject(-5,4,""),new DataObject(7,-2,""),
+                new DataObject(-6,3,""),new DataObject(8,9,"") };*/
+
+        /*{ new DataObject(1, 2,"alma"), new DataObject(2, 5,"korte"), new DataObject(36, 60,"szilva"),
+                new DataObject(57, 36,"barack"), new DataObject(14, 37,"eper") };*/
+
+        /*RTree<Integer, DataObject> tree = new RTree();
+        for (int i = 0; i < points.length; i++) {
+            DataObject point = points[i];
+            System.out.println("point(" + point.getX() + "," + point.getY() + "), value=" + (i + 1));
+            tree.add(i + 1, point);
+        }
+
+        for (DataObject dao: tree) {
+            System.out.println(dao);
+        }*/
+
+        //System.out.println(tree.getGeometry());
+        //System.out.println(tree.getRoot().size());
+        //System.out.println(tree.toString());
+
+        ReadFromFile loadFile = new ReadFromFile(new File("C:\\Users\\andris.DESKTOP-BQJ4DSD\\Desktop\\test2.txt"));
+        RTree<Integer,DataObject> objs = loadFile.ParseFile(":");
+        loadPoints(objs);
+    }
+
+    private void initPlot(Integer defaultSize, Integer range) {
         Pane _pane = plot.getPane();
         NumberAxis _xAxis = plot.getxAxis();
         NumberAxis _yAxis = plot.getyAxis();
@@ -121,15 +172,19 @@ public class AppController implements Initializable {
         gc.strokeOval(fromOriginX,fromOriginY,1,1);
     }
 
-    public void createPlot(ArrayList<DataObject> loadedObjects,Integer range){
+    public void createPlot(RTree<Integer,DataObject> loadedObjects,Integer range){
         gc.clearRect(0,0,plot.getPrefWidth(),plot.getPrefWidth());
         initPlot(500,range);
     }
 
-    public void loadPoints(ArrayList<DataObject> loadedObjects){
-        for (DataObject data: loadedObjects) {
-            drawPoint(data.getX(),data.getY());
-        }
+    public void loadPoints(RTree<Integer,DataObject> loadedObjects){
+        System.out.println(loadedObjects.toString());
+        //System.out.println(loadedObjects.getGeometry(39));
+        //System.out.println(loadedObjects.getGeometry(12));
+        /*for (DataObject data: loadedObjects) {
+            System.out.println(data);
+            //drawPoint(data.getX(),data.getY());
+        }*/
     }
 
     public void handleLoadButton(ActionEvent actionEvent) {
@@ -141,7 +196,7 @@ public class AppController implements Initializable {
 
         if (file != null) {
             ReadFromFile loadFile = new ReadFromFile(file);
-            ArrayList<DataObject> objs = loadFile.ParseFile(":");
+            RTree<Integer,DataObject> objs = loadFile.ParseFile(":");
             createPlot(objs,loadFile.getAbsMaxValue());
             loadPoints(objs);
             statusBar.setText("Loaded: " + loadFile.getTotalLoaded().toString() + " objects");

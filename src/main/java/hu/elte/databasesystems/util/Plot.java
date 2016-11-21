@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 16..
+ * Created by Andras Makoviczki on 2016. 11. 16.
  */
 public class Plot extends Pane {
 

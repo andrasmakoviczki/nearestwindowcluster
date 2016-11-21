@@ -1,7 +1,7 @@
 package hu.elte.databasesystems.model;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 07..
+ * Created by Andras Makoviczki on 2016. 11. 07.
  */
 public class NWCQuery {
     private DataObject q;

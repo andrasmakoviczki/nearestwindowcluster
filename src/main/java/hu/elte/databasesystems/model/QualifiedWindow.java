@@ -3,7 +3,7 @@ package hu.elte.databasesystems.model;
 import java.util.ArrayList;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 07..
+ * Created by Andras Makoviczki on 2016. 11. 07.
  */
 public class QualifiedWindow {
     private NWCQuery qwin;

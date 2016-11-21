@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import static java.lang.Math.abs;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 17..
+ * Created by Andras Makoviczki on 2016. 11. 17.
  */
 public class Range {
     private Integer minX;

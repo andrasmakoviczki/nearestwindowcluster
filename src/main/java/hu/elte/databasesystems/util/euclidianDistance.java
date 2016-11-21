@@ -4,7 +4,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 17..
+ * Created by Andras Makoviczki on 2016. 11. 17.
  */
 public class euclidianDistance implements Distance {
 

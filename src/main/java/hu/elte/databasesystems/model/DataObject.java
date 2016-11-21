@@ -1,35 +1,30 @@
 package hu.elte.databasesystems.model;
 
+import hu.elte.databasesystems.model.rtree.geometry.Point;
+
 /**
- * Created by Andras Makoviczki on 2016. 11. 07..
+ * Created by Andras Makoviczki on 2016. 11. 07.
  */
-public class DataObject {
-    private Integer x;
-    private Integer y;
+public class DataObject extends Point{
+
     private String name;
     private Quadrant quadrant;
     private Double distance;
 
     public DataObject(Integer x, Integer y, String name) {
-        this.x = x;
-        this.y = y;
+        super(x,y);
         this.name = name;
     }
 
-    public Integer getX() {
-        return x;
-    }
-
-    public void setX(Integer x) {
-        this.x = x;
-    }
-
-    public Integer getY() {
-        return y;
-    }
-
-    public void setY(Integer y) {
-        this.y = y;
+    @Override
+    public String toString() {
+        return "DataObject{" +
+                "x='" + getX() + '\'' +
+                "y='" + getY() + '\'' +
+                "name='" + name + '\'' +
+                ", quadrant=" + quadrant +
+                ", distance=" + distance +
+                '}';
     }
 
     public String getName() {

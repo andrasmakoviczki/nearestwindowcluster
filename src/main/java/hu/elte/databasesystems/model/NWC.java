@@ -1,5 +1,7 @@
 package hu.elte.databasesystems.model;
 
+import hu.elte.databasesystems.model.rtree.geometry.Rectangle;
+
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
@@ -7,7 +9,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 14..
+ * Created by Andras Makoviczki on 2016. 11. 14.
  */
 public class NWC {
     public Double euclidianDistance(DataObject p, DataObject q){

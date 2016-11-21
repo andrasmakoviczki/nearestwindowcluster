@@ -1,13 +1,15 @@
 package hu.elte.databasesystems.util;
 
 import hu.elte.databasesystems.model.DataObject;
+import hu.elte.databasesystems.model.RTree;
+import hu.elte.databasesystems.model.rtree.Entry;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
- * Created by Andras Makoviczki on 2016. 11. 07..
+ * Created by Andras Makoviczki on 2016. 11. 07.
  */
 public class ReadFromFile {
     private BufferedReader br;
@@ -36,13 +38,16 @@ public class ReadFromFile {
                 this.br.close();
             }catch (IOException e) {
                 e.printStackTrace();
-            } ;
+            }
         }
     }
-    public ArrayList<DataObject> ParseFile(String delimiter) {
-        ArrayList<DataObject> dataObjArray = new ArrayList<DataObject>();
+
+    public RTree<Integer,DataObject> ParseFile(String delimiter) {
+        RTree<Integer,DataObject> rTree = new RTree();
+
         Range r = new Range();
         euclidianDistance d = new euclidianDistance();
+        Integer idGenerator = 0;
 
         for (String item: this.readLines) {
             StringTokenizer st = new StringTokenizer(item,delimiter);
@@ -54,25 +59,28 @@ public class ReadFromFile {
                 Integer x = (Integer.parseInt(st.nextElement().toString()));
                 Integer y = (Integer.parseInt(st.nextElement().toString()));
                 String name = (st.nextElement().toString());
+
                 DataObject dataObj = new DataObject(x,y,name);
                 dataObj.setQuadrant(x,y);
                 d.setDistance(x,y,0,0);
                 dataObj.setDistance(d.getDistance());
+
                 r.minMaxSearch(x,y);
-                dataObjArray.add(dataObj);
+
+                rTree.add(new Entry(idGenerator,dataObj));
             }
         }
         absMaxValue = r.calculateRange();
-        setTotalLoaded(dataObjArray);
-        return dataObjArray;
+        setTotalLoaded(rTree.getSize());
+        return rTree;
     }
 
     public Integer getTotalLoaded() {
         return totalLoaded;
     }
 
-    public void setTotalLoaded(ArrayList<DataObject> loaded) {
-        this.totalLoaded = loaded.size();
+    public void setTotalLoaded(Integer loaded) {
+        this.totalLoaded = loaded;
     }
 
     public Integer getAbsMaxValue() {
