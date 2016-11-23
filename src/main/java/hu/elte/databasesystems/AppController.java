@@ -4,8 +4,8 @@ import hu.elte.databasesystems.model.DataObject;
 import hu.elte.databasesystems.model.NWC;
 import hu.elte.databasesystems.model.QualifiedWindow;
 import hu.elte.databasesystems.model.RTree;
+import hu.elte.databasesystems.model.util.ReadFromFile;
 import hu.elte.databasesystems.view.Plot;
-import hu.elte.databasesystems.util.ReadFromFile;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
@@ -33,120 +33,116 @@ import java.util.ResourceBundle;
  * Created by Andras Makoviczki on 2016. 11. 16.
  */
 public class AppController implements Initializable {
+    @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(AppController.class);
 
-    private QualifiedWindow qwin;
     private RTree tree;
 
-
-    @FXML private TextField numObjText;
-    @FXML private TextField lengthText;
-    @FXML private TextField widthText;
-
-    @FXML private MenuItem loadMenuItem;
-    @FXML private MenuItem closeAppItem;
-    @FXML private Stage stage;
-    @FXML private Plot plot;
-    @FXML private StatusBar statusBar;
-    @FXML private Button startButton;
+    @SuppressWarnings({"FalseWarning", "CanBeFinal"})
+    @FXML
+    private TextField numObjText;
+    @SuppressWarnings({"FalseWarning", "CanBeFinal"})
+    @FXML
+    private TextField lengthText;
+    @SuppressWarnings({"FalseWarning", "CanBeFinal"})
+    @FXML
+    private TextField widthText;
+    @FXML
+    private MenuItem loadMenuItem;
+    @FXML
+    @SuppressWarnings("FalseWarning")
+    private MenuItem closeAppItem;
+    @SuppressWarnings({"FalseWarning", "CanBeFinal", "unused"})
+    @FXML
+    private Stage stage;
+    @SuppressWarnings({"FalseWarning", "CanBeFinal"})
+    @FXML
+    private Plot plot;
+    @SuppressWarnings({"FalseWarning", "CanBeFinal"})
+    @FXML
+    private StatusBar statusBar;
+    @FXML
+    private Button startButton;
 
     private GraphicsContext gc;
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        initPlot(500,8);
+        initPlot(8);
     }
 
-    private void initPlot(Integer defaultSize, Integer range) {
+    private void initPlot(Integer range) {
         Pane _pane = plot.getPane();
-        NumberAxis _xAxis = plot.getxAxis();
-        NumberAxis _yAxis = plot.getyAxis();
-
-        Integer _defaultSize = defaultSize;
-        Integer _positiveRange = range;
-        Integer _negativeRange = -_positiveRange;
+        NumberAxis _xAxis = plot.getXAxis();
+        NumberAxis _yAxis = plot.getYAxis();
 
         _pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-        _pane.setPrefSize(_defaultSize, _defaultSize);
+        _pane.setPrefSize(500, 500);
         _pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
 
-        _xAxis.setLowerBound(_negativeRange);
-        _xAxis.setUpperBound(_positiveRange);
+        _xAxis.setLowerBound(-range);
+        _xAxis.setUpperBound(range);
         _xAxis.setTickUnit(range);
         _xAxis.setMinorTickVisible(false);
-        _xAxis.setPrefWidth(_defaultSize);
-        _xAxis.setLayoutY(_defaultSize / 2);
+        _xAxis.setPrefWidth(500);
+        _xAxis.setLayoutY(500 / 2);
 
-        _yAxis.setLowerBound(_negativeRange);
-        _yAxis.setUpperBound(_positiveRange);
+        _yAxis.setLowerBound(-range);
+        _yAxis.setUpperBound(range);
         _yAxis.setTickUnit(range);
         _yAxis.setMinorTickVisible(false);
-        _yAxis.setPrefHeight(_defaultSize);
+        _yAxis.setPrefHeight(500);
         _yAxis.layoutXProperty().bind(
                 Bindings.subtract(
-                        (_defaultSize / 2) + 1,
+                        (500 / 2) + 1,
                         _yAxis.widthProperty()
                 )
         );
 
         Canvas _canvas = plot.getCanvas();
-        _canvas.setWidth(_defaultSize+50);
-        _canvas.setHeight(_defaultSize+50);
+        _canvas.setWidth(500 + 50);
+        _canvas.setHeight(500 + 50);
 
         gc = _canvas.getGraphicsContext2D();
 
-        drawPoint(0,0,"q",Color.RED);
-        _pane.getChildren().setAll(_xAxis, _yAxis,_canvas);
+        drawPoint(0, 0, "q", Color.RED);
+        _pane.getChildren().setAll(_xAxis, _yAxis, _canvas);
     }
 
-    public void drawPoint(Integer x,Integer y){
-        drawPoint(x,y,null,Color.BLUE);
+    private void drawPoint(Integer x, Integer y) {
+        drawPoint(x, y, null, Color.BLUE);
     }
 
-    public void drawPoint(Integer x,Integer y,String label){
-        drawPoint(x,y,label,Color.BLUE);
-    }
-
-    public void drawPoint(Integer x,Integer y,Boolean labeledByPoints){
-        String coordinates = "[X=" + x.toString() + " Y=" + y.toString() + "]";
-        drawPoint(x,y,coordinates);
-    }
-
-    public void drawPoint(Integer x,Integer y,String label, Color color){
-        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getxAxis().getUpperBound());
+    private void drawPoint(Integer x, Integer y, String label, Color color) {
+        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getXAxis().getUpperBound());
         Double fromOriginX = plot.getPane().getPrefWidth() / 2 + x * unit;
         Double fromOriginY = plot.getPane().getPrefHeight() / 2 - y * unit;
 
-        if(label != null){
+        if (label != null) {
             gc.setStroke(Color.BLACK);
             gc.setFill(Color.BLACK);
             gc.setLineWidth(0.25);
-            gc.strokeText(label,fromOriginX + 5, fromOriginY - 5);
+            gc.strokeText(label, fromOriginX + 5, fromOriginY - 5);
         }
 
         gc.setStroke(color);
         gc.setFill(color);
-        gc.setLineWidth(2);
-        gc.strokeOval(fromOriginX,fromOriginY,1,1);
+        gc.setLineWidth(5);
+        gc.strokeOval(fromOriginX, fromOriginY, 1, 1);
     }
 
-    public void createPlot(RTree<Integer,DataObject> loadedObjects,Integer range){
-        gc.clearRect(0,0,plot.getPrefWidth(),plot.getPrefWidth());
-        initPlot(500,range);
+    private void createPlot(Integer range) {
+        gc.clearRect(0, 0, plot.getPrefWidth(), plot.getPrefWidth());
+        initPlot(range);
     }
 
-    public void loadPoints(RTree<Integer,DataObject> loadedObjects){
-        for (DataObject data: loadedObjects) {
-            drawPoint(data.getX(),data.getY());
+    private void loadPoints(RTree<Integer, DataObject> loadedObjects) {
+        for (DataObject data : loadedObjects) {
+            drawPoint(data.getX(), data.getY());
         }
     }
 
-    public void loadPoints(RTree<Integer,DataObject> loadedObjects,Boolean label){
-        for (DataObject data: loadedObjects) {
-            drawPoint(data.getX(),data.getY(),label);
-        }
-    }
-
+    @SuppressWarnings("UnusedParameters")
     public void handleLoadButton(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open");
@@ -156,56 +152,59 @@ public class AppController implements Initializable {
 
         if (file != null) {
             ReadFromFile loadFile = new ReadFromFile(file);
-            this.tree = loadFile.ParseFile(":");
+            this.tree = loadFile.ParseFile();
             tree.setParents();
-            createPlot(tree,loadFile.getAbsMaxValue());
+            createPlot(loadFile.getAbsMaxValue());
+            //noinspection unchecked
             loadPoints(tree);
             statusBar.setText("Loaded: " + loadFile.getTotalLoaded().toString() + " objects");
         }
     }
 
 
-    public void drawWindow(QualifiedWindow qwin){
-        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getxAxis().getUpperBound());
+    private void drawWindow(QualifiedWindow qwin) {
+        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getXAxis().getUpperBound());
         Double fromOriginX = plot.getPane().getPrefWidth() / 2 + qwin.getR().getLeftTop().getX() * unit;
         Double fromOriginY = plot.getPane().getPrefHeight() / 2 - qwin.getR().getLeftTop().getY() * unit;
 
         gc.setStroke(Color.GOLD);
         gc.setFill(Color.GOLD);
-        gc.setLineWidth(0.5);
-        gc.setLineDashes(0,0);
+        gc.setLineWidth(1);
+        gc.setLineDashes(0, 0);
 
-        gc.strokeRect(fromOriginX,fromOriginY,qwin.getSearchRegion().getLength()*unit,qwin.getSearchRegion().getWidth()*unit);
+        gc.strokeRect(fromOriginX, fromOriginY, qwin.getSearchRegion().getLength() * unit, qwin.getSearchRegion().getWidth() * unit);
     }
 
-    public void drawSearchRegion(QualifiedWindow qwin){
-        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getxAxis().getUpperBound());
+    private void drawSearchRegion(QualifiedWindow qwin) {
+        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getXAxis().getUpperBound());
         Double fromOriginX = plot.getPane().getPrefWidth() / 2 + qwin.getR().getLeftTop().getX() * unit;
         Double fromOriginY = plot.getPane().getPrefHeight() / 2 - qwin.getR().getLeftTop().getY() * unit;
 
         gc.setStroke(Color.BLACK);
         gc.setFill(Color.BLACK);
-        gc.setLineWidth(0.5);
-        gc.setLineDashes(5,5);
+        gc.setLineWidth(1);
+        gc.setLineDashes(5, 5);
 
-       gc.strokeRect(fromOriginX,fromOriginY,qwin.getLength()*unit,qwin.getWidth()*unit);
+        gc.strokeRect(fromOriginX, fromOriginY, qwin.getLength() * unit, qwin.getWidth() * unit);
     }
 
 
+    @SuppressWarnings("UnusedParameters")
     public void handleCloseButton(ActionEvent actionEvent) {
         Platform.exit();
         System.exit(0);
     }
 
+    @SuppressWarnings("UnusedParameters")
     public void handleStartButton(ActionEvent actionEvent) {
         if (tree == null) {
             statusBar.setText("Load some files!");
         } else {
-            if(widthText.getText().equals("") || lengthText.getText().equals("") || numObjText.getText().equals("") ) {
+            if (widthText.getText().equals("") || lengthText.getText().equals("") || numObjText.getText().equals("")) {
                 statusBar.setText("Fill the fields!");
             } else {
                 String s1 = widthText.getText();
-                String s2  = lengthText.getText();
+                String s2 = lengthText.getText();
                 String s3 = numObjText.getText();
 
                 Integer width = Integer.parseInt(s1);
@@ -213,11 +212,11 @@ public class AppController implements Initializable {
                 Integer num = Integer.parseInt(s3);
 
                 NWC nwc = new NWC();
-                QualifiedWindow qwin = nwc.run(tree,width,length,num);
+                @SuppressWarnings("unchecked") QualifiedWindow qwin = nwc.run(tree, width, length, num);
                 if (qwin != null) {
                     gc.clearRect(0, 0, plot.getPrefWidth(), plot.getPrefWidth());
                     drawPoint(0, 0, "q", Color.RED);
-                    loadPoints(qwin.getSqwin(), true);
+                    loadPoints(qwin.getSqwin());
                     drawSearchRegion(qwin);
                     drawWindow(qwin);
                     statusBar.setText("Min distance: " + nwc.getDistBest() + "\t Number of objects: " + qwin.getSqwin().getSize());

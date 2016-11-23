@@ -8,14 +8,14 @@ import java.util.Comparator;
 /**
  * Created by Andras Makoviczki on 2016. 11. 19..
  */
-public class Comparators {
-    //Area Increase Area Comperator
-    public static <T extends HasGeometry> Comparator<HasGeometry> areaIncreaseAC(final Rectangle r){
+class Comparators {
+    //Area Increase Area Comparator
+    public static <T extends HasGeometry> Comparator<HasGeometry> areaIncreaseAC(final Rectangle r) {
         return new Comparator<HasGeometry>() {
             public int compare(HasGeometry o1, HasGeometry o2) {
-                Integer value = Double.compare(areaIncrease(r,o1),areaIncrease(r,o2));
-                if (value == 0){
-                    value = Double.compare(area(r,o1),area(r,o2));
+                Integer value = Double.compare(areaIncrease(r, o1), areaIncrease(r, o2));
+                if (value == 0) {
+                    value = Double.compare(area(r, o1), area(r, o2));
                 }
                 return value;
             }

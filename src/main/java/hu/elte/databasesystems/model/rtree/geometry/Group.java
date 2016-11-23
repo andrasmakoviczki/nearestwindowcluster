@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * Created by Andras Makoviczki on 2016. 11. 19..
  */
-public class Group<T extends HasGeometry> implements HasGeometry{
-    private List<T> list;
-    private Rectangle mbr;
+public class Group<T extends HasGeometry> implements HasGeometry {
+    private final List<T> list;
+    private final Rectangle mbr;
 
     public Group(List<T> list) {
         this.list = list;

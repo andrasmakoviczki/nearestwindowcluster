@@ -1,29 +1,32 @@
 package hu.elte.databasesystems.model;
 
 import hu.elte.databasesystems.model.rtree.geometry.Point;
-import hu.elte.databasesystems.util.Edge;
-import hu.elte.databasesystems.util.Quadrant;
+import hu.elte.databasesystems.model.util.Edge;
+import hu.elte.databasesystems.model.util.Quadrant;
 
 /**
  * Created by Andras Makoviczki on 2016. 11. 07.
  */
-public class DataObject extends Point{
 
-    private String name;
+/**
+ * Síkbeli pontok modellezése
+ */
+public class DataObject extends Point {
+
+    private final String name;
     private Quadrant quadrant;
     private Edge edge;
     private Double distance;
 
     public DataObject(Integer x, Integer y, String name) {
-        super(x,y);
+        super(x, y);
         this.name = name;
     }
 
     public DataObject(Integer x, Integer y) {
-        super(x,y);
+        super(x, y);
         this.name = "";
     }
-
 
 
     @Override
@@ -37,33 +40,21 @@ public class DataObject extends Point{
                 '}';
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Quadrant getQuadrant() {
         return quadrant;
     }
 
-    public void setQuadrant(Quadrant quadrant) {
-        this.quadrant = quadrant;
-    }
-
-    public void setQuadrant(){
-        if(getX() > 0 && getY() > 0){
+    public void setQuadrant() {
+        if (getX() > 0 && getY() > 0) {
             quadrant = Quadrant.FIRST;
-        } else if(getX() > 0 && getY() < 0){
+        } else if (getX() > 0 && getY() < 0) {
             quadrant = Quadrant.FOURTH;
-        } else if(getX() < 0 && getY() > 0){
+        } else if (getX() < 0 && getY() > 0) {
             quadrant = Quadrant.SECOND;
-        } else if (getX() < 0 && getY() < 0){
+        } else if (getX() < 0 && getY() < 0) {
             quadrant = Quadrant.THIRD;
         } else {
-            quadrant= Quadrant.ORIGO;
+            quadrant = Quadrant.ORIGIN;
         }
     }
 
@@ -72,7 +63,7 @@ public class DataObject extends Point{
     }
 
     public void setEdge() {
-        switch (quadrant){
+        switch (quadrant) {
             case FIRST:
                 edge = Edge.RIGHT;
                 break;
@@ -82,7 +73,7 @@ public class DataObject extends Point{
             case THIRD:
                 edge = Edge.LEFT;
                 break;
-            case ORIGO:
+            case ORIGIN:
                 break;
             case FOURTH:
                 edge = Edge.RIGHT;

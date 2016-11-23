@@ -6,42 +6,43 @@ import hu.elte.databasesystems.model.rtree.geometry.Geometry;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Created by Andras Makoviczki on 2016. 11. 14.
- * Csak pont objektumokra, más poligonokra nem
  */
 
-public class RTree<T,S extends Geometry> implements Iterable<S> {
-    private Node<T,S> root;
+/**
+ * R-fa megvalósítás az alábbi oldalak alapján
+ * https://github.com/davidmoten/rtree/tree/master/src/main/java/com/github/davidmoten/rtree
+ * http://dbs.mathematik.uni-marburg.de/publications/myPapers/1990/BKSS90.pdf
+ * http://www-db.deis.unibo.it/courses/SI-LS/papers/Gut84.pdf
+ */
+public class RTree<T, S extends Geometry> implements Iterable<S> {
+    private final Context context;
+    private Node<T, S> root;
     private Integer size;
-    private Context context;
-
-    //Builder -> Készít egy fát a megfelelő tulajdonságokkal: minChild, maxChild, splitter, selector
 
     public RTree() {
         this.size = 0;
         this.context = new Context();
     }
 
-    public RTree(Node<T,S> root, Integer size) {
-        this.root = root;
-        this.size = size;
-        this.context = new Context();
+    public S getGeometry(Integer index) {
+        return getGeometry(index, getRoot());
     }
 
-    public S getGeometry(Integer index){
-        return getGeometry(index,getRoot());
-    }
-
-    public void resetTraversed(Node<T,S> node,Node<T,S> parent){
+    /**
+     * Eddigi bejárás visszaállítása
+     *
+     * @param node
+     */
+    private void resetTraversed(Node<T, S> node) {
         if (node instanceof NonLeafNode) {
             NonLeafNode<T, S> n = (NonLeafNode<T, S>) node;
             for (int i = 0; i < n.size(); i++) {
                 Node<T, S> child = n.getChild(i);
                 child.resetTraversed();
-                resetTraversed(child,n);
+                resetTraversed(child);
             }
         } else {
             LeafNode<T, S> leaf = (LeafNode<T, S>) node;
@@ -49,83 +50,100 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
         }
     }
 
-    public void resetTraversed(){
-        resetTraversed(getRoot(),null);
+    private void resetTraversed() {
+        resetTraversed(getRoot());
     }
 
-    public S getGeometry(Integer index,Node<T,S> node){
-         if(node instanceof NonLeafNode){
+    /**
+     * Megadott indexű elem visszaadása
+     *
+     * @param index
+     * @param node
+     * @return
+     */
+    private S getGeometry(Integer index, Node<T, S> node) {
+        if (node instanceof NonLeafNode) {
             for (Integer i = 0; i < node.size(); i++) {
-                if (!((NonLeafNode) node).getChild(i).isTraversed()){
-                    return (S) getGeometry(index,((NonLeafNode) node).getChild(i));
+                if (!((NonLeafNode) node).getChild(i).isTraversed()) {
+                    //noinspection unchecked,unchecked
+                    return (S) getGeometry(index, ((NonLeafNode) node).getChild(i));
                 }
             }
             node.setTraversed();
-            return (S) getGeometry(index,node.getParent());
+            return getGeometry(index, node.getParent());
 
-        } else if (node instanceof LeafNode){
-            if(index < node.size()){
+        } else if (node instanceof LeafNode) {
+            if (index < node.size()) {
                 resetTraversed();
-                return (S) ((LeafNode) node).getEntry(index).getGeomerty();
+                //noinspection unchecked
+                return (S) ((LeafNode) node).getEntry(index).getGeometry();
             } else {
                 node.setTraversed();
-                return getGeometry(index - node.size(),node.getParent());
+                return getGeometry(index - node.size(), node.getParent());
             }
         }
         return null;
     }
 
-    public Node<T,S> getRoot() {
+    private Node<T, S> getRoot() {
         return root;
-    }
-
-    public void setRoot(Node<T,S> root) {
-        this.root = root;
     }
 
     public Integer getSize() {
         return size;
     }
 
-    public void setSize(Integer size) {
-        this.size = size;
-    }
-
     public void add(T value, S geometry) {
-        add(new Entry(value,geometry));
+        //noinspection unchecked
+        add(new Entry(value, geometry));
     }
 
-    public void add(Entry entry){
-        if(root != null){
+    /**
+     * Új elem hozzáadása
+     *
+     * @param entry
+     */
+    public void add(Entry entry) {
+        if (root != null) {
             //TODO
-            List<Node<T,S>> nodes = root.add(entry);
-            Node<T,S> node;
+            @SuppressWarnings("unchecked") List<Node<T, S>> nodes = root.add(entry);
 
-            if(nodes.size() == 1){
+            if (nodes.size() == 1) {
                 root = nodes.get(0);
             } else {
-                root = new NonLeafNode<T,S>(nodes,context);
+                //noinspection unchecked
+                root = new NonLeafNode<T, S>(nodes, context);
             }
         } else {
-            List<Entry<T,S>> nodes = new ArrayList<Entry<T,S>>();
+            List<Entry<T, S>> nodes = new ArrayList<Entry<T, S>>();
+            //noinspection unchecked
             nodes.add(entry);
-            root = new LeafNode<T,S>(nodes,context);
+            //noinspection unchecked
+            root = new LeafNode<T, S>(nodes, context);
         }
 
         size = size + 1;
     }
 
-    public void setParents(){
-        setParents(getRoot(),null);
+    public void setParents() {
+        setParents(getRoot(), null);
     }
 
-    public void setParents(Node<T,S> node,Node<T,S> parent) {
+    /**
+     * Szülő pointerek beállítása
+     *
+     * @param node
+     * @param parent
+     */
+    private void setParents(Node<T, S> node, Node<T, S> parent) {
         if (node instanceof NonLeafNode) {
             NonLeafNode<T, S> n = (NonLeafNode<T, S>) node;
             for (int i = 0; i < n.size(); i++) {
                 Node<T, S> child = n.getChild(i);
+                //noinspection unchecked
                 child.setParent(n);
-                setParents(child,n);
+                //noinspection unchecked
+                setParents(child, n);
             }
         } else {
             LeafNode<T, S> leaf = (LeafNode<T, S>) node;
@@ -133,28 +151,15 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
         }
     }
 
-    public void add(Iterable<Entry<T, S>> entries) {
-        RTree<T, S> tree = this;
-        for (Entry<T, S> entry : entries)
-            tree.add(entry);
-    }
-
-    public void delete(){
-        throw new UnsupportedOperationException();
-    }
-
-    public void search(){}
-
     @Override
     public String toString() {
         if (root == null)
             return "";
         else
-            return asString(root, "");
+            return write(root, "");
     }
 
-    //TODO
-    private String asString(Node<T, S> node, String margin) {
+    private String write(Node<T, S> node, String margin) {
         String marginIncrement = "  ";
         StringBuilder s = new StringBuilder();
         s.append(margin);
@@ -165,7 +170,7 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
             NonLeafNode<T, S> n = (NonLeafNode<T, S>) node;
             for (int i = 0; i < n.size(); i++) {
                 Node<T, S> child = n.getChild(i);
-                s.append(asString(child, margin + marginIncrement));
+                s.append(write(child, margin + marginIncrement));
             }
         } else {
             LeafNode<T, S> leaf = (LeafNode<T, S>) node;
@@ -182,24 +187,24 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
     }
 
 
-
+    /**
+     * R-fa iterálása
+     *
+     * @return
+     */
     public Iterator<S> iterator() {
-        return new RTreeIteator<S>();
+        return new RTreeIterator<S>();
     }
 
-    class RTreeIteator<S extends Geometry> implements Iterator<S>{
+    class RTreeIterator<E extends Geometry> implements Iterator<S> {
         private Integer index = 0;
 
         public boolean hasNext() {
-            if (index < getSize()){
-                return true;
-            } else {
-                return false;
-            }
+            return index < getSize();
         }
 
         public S next() {
-            return (S) getGeometry(index++);
+            return getGeometry(index++);
         }
 
         public void remove() {

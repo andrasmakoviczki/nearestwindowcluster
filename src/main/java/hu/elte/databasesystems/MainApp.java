@@ -1,6 +1,5 @@
 package hu.elte.databasesystems;
 
-import hu.elte.databasesystems.model.NWC;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,13 +13,12 @@ public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
     public static void main(String[] args) throws Exception {
-        NWC nwc = new NWC();
         launch(args);
     }
 
     public void start(Stage stage) throws Exception {
 
-        log.info("Starting Hello JavaFX and Maven demonstration application");
+        log.info("Starting Nearest Window Cluster Queries demonstration application");
 
         String fxmlFile = "/fxml/application.fxml";
         log.debug("Loading FXML for main view from: {}", fxmlFile);

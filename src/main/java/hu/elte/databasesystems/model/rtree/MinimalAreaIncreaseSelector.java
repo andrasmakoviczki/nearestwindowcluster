@@ -11,7 +11,7 @@ import static java.util.Collections.min;
  */
 public class MinimalAreaIncreaseSelector implements Selector {
 
-    public <T,S extends Geometry> Node<T,S> select(Geometry g, List<Node<T,S>> nodes) {
-        return min(nodes,Comparators.areaIncreaseAC(g.mbr()));
+    public <T, S extends Geometry> Node<T, S> select(Geometry g, List<Node<T, S>> nodes) {
+        return min(nodes, Comparators.areaIncreaseAC(g.mbr()));
     }
 }

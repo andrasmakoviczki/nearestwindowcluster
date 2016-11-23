@@ -1,6 +1,4 @@
-package hu.elte.databasesystems.util;
-
-import hu.elte.databasesystems.model.DataObject;
+package hu.elte.databasesystems.model.util;
 
 import java.util.ArrayList;
 
@@ -9,12 +7,12 @@ import static java.lang.Math.abs;
 /**
  * Created by Andras Makoviczki on 2016. 11. 17.
  */
-public class Range {
+class Range {
+    private final ArrayList<Integer> absMax;
     private Integer minX;
     private Integer maxX;
     private Integer minY;
     private Integer maxY;
-    private ArrayList<Integer> absMax;
 
     public Range() {
         minX = Integer.MAX_VALUE;
@@ -39,7 +37,7 @@ public class Range {
         }
     }
 
-    public Integer calculateRange(){
+    public Integer calculateRange() {
         absMax.add(abs(minX));
         absMax.add(abs(maxX));
         absMax.add(abs(minY));

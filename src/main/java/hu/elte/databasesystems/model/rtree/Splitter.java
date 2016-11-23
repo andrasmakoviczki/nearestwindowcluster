@@ -9,5 +9,5 @@ import java.util.List;
  * Created by Andras Makoviczki on 2016. 11. 18.
  */
 public interface Splitter {
-    public <T extends HasGeometry> ListPair<T> split(List<T> items, Integer minSize);
+    <T extends HasGeometry> ListPair<T> split(List<T> items);
 }

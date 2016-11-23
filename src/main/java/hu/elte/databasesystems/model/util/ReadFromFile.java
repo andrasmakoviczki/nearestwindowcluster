@@ -1,4 +1,4 @@
-package hu.elte.databasesystems.util;
+package hu.elte.databasesystems.model.util;
 
 import hu.elte.databasesystems.model.DataObject;
 import hu.elte.databasesystems.model.RTree;
@@ -12,21 +12,19 @@ import java.util.StringTokenizer;
  * Created by Andras Makoviczki on 2016. 11. 07.
  */
 public class ReadFromFile {
+    private final ArrayList<String> readLines;
     private BufferedReader br;
-    private File file;
-    private ArrayList<String> readLines;
     private Integer absMaxValue;
     private Integer totalLoaded;
 
     public ReadFromFile(File file) {
-        this.file = file;
         this.readLines = new ArrayList<String>();
 
         try {
             this.br = new BufferedReader(new FileReader(file));
             String actLine;
 
-            while((actLine = br.readLine()) != null){
+            while ((actLine = br.readLine()) != null) {
                 this.readLines.add(actLine);
             }
         } catch (FileNotFoundException e) {
@@ -34,41 +32,42 @@ public class ReadFromFile {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try{
+            try {
                 this.br.close();
-            }catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public RTree<Integer,DataObject> ParseFile(String delimiter) {
-        RTree<Integer,DataObject> rTree = new RTree();
+    public RTree<Integer, DataObject> ParseFile() {
+        @SuppressWarnings("unchecked") RTree<Integer, DataObject> rTree = new RTree();
 
         Range r = new Range();
-        euclidianDistance d = new euclidianDistance();
+        euclideanDistance d = new euclideanDistance();
         Integer idGenerator = 0;
 
-        for (String item: this.readLines) {
-            StringTokenizer st = new StringTokenizer(item,delimiter);
+        for (String item : this.readLines) {
+            StringTokenizer st = new StringTokenizer(item, ":");
             /*if(st.countTokens() != 3){
                 NoSuchMethodException e = new NoSuchMethodException();
                 throw e;
             }*/
-            while(st.hasMoreElements()) {
+            while (st.hasMoreElements()) {
                 Integer x = (Integer.parseInt(st.nextElement().toString()));
                 Integer y = (Integer.parseInt(st.nextElement().toString()));
                 String name = (st.nextElement().toString());
 
-                DataObject dataObj = new DataObject(x,y,name);
+                DataObject dataObj = new DataObject(x, y, name);
                 dataObj.setQuadrant();
                 dataObj.setEdge();
-                d.setDistance(x,y,0,0);
+                d.setDistance(x, y);
                 dataObj.setDistance(d.getDistance());
 
-                r.minMaxSearch(x,y);
+                r.minMaxSearch(x, y);
 
-                rTree.add(new Entry(idGenerator,dataObj));
+                //noinspection unchecked
+                rTree.add(new Entry(idGenerator, dataObj));
             }
         }
         absMaxValue = r.calculateRange();
@@ -80,7 +79,7 @@ public class ReadFromFile {
         return totalLoaded;
     }
 
-    public void setTotalLoaded(Integer loaded) {
+    private void setTotalLoaded(Integer loaded) {
         this.totalLoaded = loaded;
     }
 
@@ -88,7 +87,4 @@ public class ReadFromFile {
         return absMaxValue;
     }
 
-    public void setAbsMaxValue(Integer absMaxValue) {
-        this.absMaxValue = absMaxValue;
-    }
 }
