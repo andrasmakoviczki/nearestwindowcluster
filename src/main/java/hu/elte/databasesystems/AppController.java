@@ -148,6 +148,7 @@ public class AppController implements Initializable {
         fileChooser.setTitle("Open");
         FileChooser.ExtensionFilter txtExtension = new FileChooser.ExtensionFilter("Text", "*.txt");
         fileChooser.getExtensionFilters().add(txtExtension);
+        fileChooser.setInitialDirectory(new File(this.getClass().getClassLoader().getResource("sample/").getPath()));
         File file = fileChooser.showOpenDialog(stage);
 
         if (file != null) {
