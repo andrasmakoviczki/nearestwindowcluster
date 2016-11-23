@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -148,7 +149,7 @@ public class AppController implements Initializable {
         fileChooser.setTitle("Open");
         FileChooser.ExtensionFilter txtExtension = new FileChooser.ExtensionFilter("Text", "*.txt");
         fileChooser.getExtensionFilters().add(txtExtension);
-        fileChooser.setInitialDirectory(new File(this.getClass().getClassLoader().getResource("sample/").getPath()));
+
         File file = fileChooser.showOpenDialog(stage);
 
         if (file != null) {
@@ -204,13 +205,9 @@ public class AppController implements Initializable {
             if (widthText.getText().equals("") || lengthText.getText().equals("") || numObjText.getText().equals("")) {
                 statusBar.setText("Fill the fields!");
             } else {
-                String s1 = widthText.getText();
-                String s2 = lengthText.getText();
-                String s3 = numObjText.getText();
-
-                Integer width = Integer.parseInt(s1);
-                Integer length = Integer.parseInt(s2);
-                Integer num = Integer.parseInt(s3);
+                Integer width = Integer.parseInt(widthText.getText());
+                Integer length = Integer.parseInt(lengthText.getText());
+                Integer num = Integer.parseInt(numObjText.getText());
 
                 NWC nwc = new NWC();
                 @SuppressWarnings("unchecked") QualifiedWindow qwin = nwc.run(tree, width, length, num);
@@ -220,7 +217,8 @@ public class AppController implements Initializable {
                     loadPoints(qwin.getSqwin());
                     drawSearchRegion(qwin);
                     drawWindow(qwin);
-                    statusBar.setText("Min distance: " + nwc.getDistBest() + "\t Number of objects: " + qwin.getSqwin().getSize());
+                    statusBar.setText("Min distance: " + BigDecimal.valueOf(nwc.getDistBest()).setScale(3, BigDecimal.ROUND_HALF_UP)
+                            + "\t Number of objects: " + qwin.getSqwin().getSize());
                 } else {
                     statusBar.setText("Not found!");
                 }
