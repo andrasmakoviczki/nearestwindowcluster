@@ -15,16 +15,31 @@ public class LeafNode<T,S extends Geometry> implements Node{
     private Rectangle mbr;
     private Context<T,S> context;
     private Node<T,S> parent;
+    private Boolean traversed;
 
     public LeafNode(List<Entry<T,S>> entries, Context context) {
         this.entries = entries;
         this.mbr = Util.mbr(entries);
         this.context = context;
+        this.traversed = false;
     }
 
     public Integer size(){
         return entries.size();
     }
+
+    public void setTraversed() {
+        this.traversed = true;
+    }
+
+    public void resetTraversed() {
+        this.traversed = false;
+    }
+
+    public Boolean isTraversed() {
+        return traversed;
+    }
+
 
     public Node getParent() {
         return parent;
@@ -36,15 +51,24 @@ public class LeafNode<T,S extends Geometry> implements Node{
 
     public List<Node<T,S>> add(Entry entry) {
         entries.add(entry);
+        //< or <=
         if (entries.size() <= context.getMaxChildren()) {
             List<Node<T,S>> list = new ArrayList<Node<T, S>>();
-            list.add(new LeafNode<T,S>(entries,context));
+            LeafNode<T,S> leaf = new LeafNode<T,S>(entries,context);
+            leaf.setParent(getParent());
+            list.add(leaf);
+
             return list;
         } else {
             ListPair<Entry<T,S>> pair = context.getSplitter().split(entries,context.getMinChildren());
             List<Node<T,S>> list = new ArrayList<Node<T,S>>();
-            list.add(new LeafNode<T,S>(pair.getGroup1().getList(),context));
-            list.add(new LeafNode<T,S>(pair.getGroup2().getList(),context));
+            LeafNode<T,S> leaf1 = new LeafNode<T,S>(pair.getGroup1().getList(),context);
+            LeafNode<T,S> leaf2 = new LeafNode<T,S>(pair.getGroup2().getList(),context);
+            leaf1.setParent(getParent());
+            leaf2.setParent(getParent());
+
+            list.add(leaf1);
+            list.add(leaf2);
             return list;
         }
     }

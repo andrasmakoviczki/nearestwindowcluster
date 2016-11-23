@@ -4,10 +4,17 @@ package hu.elte.databasesystems.model;
  * Created by Andras Makoviczki on 2016. 11. 07.
  */
 public class NWCQuery {
+    //query point
     private DataObject q;
+    //szélesség
     private Integer length;
+    //magasság
     private Integer width;
     private Integer numDataObjects;
+
+    public NWCQuery(Integer length, Integer width, Integer numDataObjects){
+        this(new DataObject(0,0,"origin"),length,width,numDataObjects);
+    }
 
     public NWCQuery(DataObject q, Integer length, Integer width, Integer numDataObjects) {
         this.q = q;
@@ -47,8 +54,4 @@ public class NWCQuery {
     public void setNumDataObjects(Integer numDataObjects) {
         this.numDataObjects = numDataObjects;
     }
-
-    //Feltételek:
-    //az n objektumot a window l és w értéke klaszterezi
-    //a távolság az ablak és
 }

@@ -1,63 +1,192 @@
 package hu.elte.databasesystems.model;
 
+import hu.elte.databasesystems.AppController;
+import hu.elte.databasesystems.model.rtree.Entry;
+import hu.elte.databasesystems.model.rtree.LeafNode;
+import hu.elte.databasesystems.model.rtree.Node;
+import hu.elte.databasesystems.model.rtree.NonLeafNode;
 import hu.elte.databasesystems.model.rtree.geometry.Rectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
-
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
 
 /**
  * Created by Andras Makoviczki on 2016. 11. 14.
  */
 public class NWC {
-    public Double euclidianDistance(DataObject p, DataObject q){
-        return sqrt(pow(p.getX()-q.getX(),2) + pow(p.getY()-q.getY(),2));
+
+    private Double distBest;
+
+    public Double getDistBest() {
+        return distBest;
     }
 
-    public Double distMin(DataObject q, QualifiedWindow qwin) {
-        Double distance = Double.MAX_VALUE;
+    public void setDistBest(Double distBest) {
+        this.distBest = distBest;
+    }
 
-        for (DataObject p: qwin.getSqwin()) {
-            //euclidian distance
-            Double actDistance = euclidianDistance(p,q);
+    private static final Logger log = LoggerFactory.getLogger(NWC.class);
 
-            if(actDistance < distance){
-                distance = actDistance;
+    public QualifiedWindow run(RTree<Integer,DataObject> tree, Integer width, Integer length, Integer numOfObject) {
+
+        if(width == null){
+            width = 8;
+        }
+        if(length == null){
+            length = 8;
+        }
+        if(numOfObject == null){
+            numOfObject = 3;
+        }
+
+        Double distBest = Double.MAX_VALUE;
+        QualifiedWindow bestQwin = null;
+
+        for (Integer i = 0; i < tree.getSize(); i++) {
+            DataObject p = tree.getGeometry(i);
+            NWCQuery query = new NWCQuery(length, width, numOfObject);
+            SearchRegion sr = new SearchRegion(p, query);
+            sr.selectPoints(tree);
+
+            List<QualifiedWindow> qwins = new ArrayList<QualifiedWindow>();
+            for (Map.Entry<Integer, DataObject> item : sr.getYList().entrySet()) {
+                qwins.add(new QualifiedWindow(query, sr, item.getValue()));
+            }
+
+            for (QualifiedWindow qwin : qwins) {
+                if (qwin.isQualified() && qwin.mindist() < distBest) {
+                    distBest = qwin.mindist();
+                    bestQwin = qwin;
+                    this.distBest = distBest;
+                }
             }
         }
 
-        return distance;
+        if(bestQwin != null && !bestQwin.isQualified()){
+            bestQwin = null;
+        }
+
+        return bestQwin;
+
     }
 
-    public Double distMax(DataObject q, QualifiedWindow qwin) {
-        Double distance = Double.MIN_VALUE;
+    /*public ArrayList<DataObject> NWC(NWCQuery query, PriorityQueue<Node<Integer,DataObject>> pq){
+        Double distBest = Double.MAX_VALUE;
+        ArrayList<DataObject> objs = new ArrayList<DataObject>();
+        //TODO
+        Object pr = null;
+        Rectangle mbr = null;
 
-        for (DataObject p: qwin.getSqwin()) {
-            //euclidian distance
-            Double actDistance = euclidianDistance(p,q);
+        //TODO
+        //pq.add()
 
-            if(actDistance > distance){
-                distance = actDistance;
+        while (pq.size() > 0){
+            Node<Integer,DataObject> p = pq.remove();
+            if(p instanceof NonLeafNode){
+                mbr = ((NonLeafNode) p).getMbr();
+                //TODO DEP
+                if(mbr != null && !isPrunedByDEP(mbr,0)){
+                    for (Integer i = 0; i < p.size();++i) {
+                        pq.add(((NonLeafNode) p).getChild(i));
+                    }
+                }
+            } else if (p instanceof LeafNode) {
+                //TODO
+                DataObject obj = null; //((LeafNode) p).getEntry().getGeomerty();
+                obj.setQuadrant();
+                obj.setEdge();
+                SearchRegion sr = null;//new SearchRegion();
+                SearchRegion sr2 = null;
+                //TODO
+                if(sr2 != null && !isPrunedByDEP(new Rectangle(0.0,0.0,0.0,0.0),0)){
+                    List<DataObject> ssrp = (List<DataObject>) IWP(new Rectangle(0.0,0.0,0.0,0.0),0);
+                    List<DataObject> orderedSsrp = new ArrayList<DataObject>();
+                    //TODO: rendezés y szerint
+                    //Arrays.sort(ssrp);
+                    //remove
+                    for(Integer i = 0; i < ssrp.size(); ++i){
+                        QualifiedWindow qwin = new QualifiedWindow(query,null,null);
+                        //TODO check mindist
+                        if(qwin.getNumberOfObjects() > query.getNumDataObjects() && minDist(qwin) < distBest){
+                            if(minDist(qwin) < distBest){
+                                distBest = minDist(qwin);
+                                for (Integer j = 0; i < qwin.getSqwin().getSize();++i){
+                                    objs.add(qwin.getSqwin().getGeometry(i));
+                                }
+                                //TODO update PR
+                            }
+                        }
+                    }
+                }
+            }
+            else {throw new UnsupportedOperationException();}
+        }
+        return objs;
+    }*/
+
+    /*public Double minDist(QualifiedWindow qwin){
+        Double minDistance = Double.MAX_VALUE;
+        for (DataObject item : qwin.getSqwin()){
+            if(item.getDistance() < minDistance){
+                minDistance = item.getDistance();
+            }
+        }
+        return minDistance;
+    }*/
+
+    /*public Boolean isPrunedByDEP(Rectangle rect, Integer n){
+        Integer ub = 0;
+        ///TODO
+
+
+        if (ub < n){
+            return true;
+        } else {
+            return false;
+        }
+    }*/
+
+    /*public RTree<Integer, DataObject> IWP(Rectangle rect, int o){
+        RTree<Integer,DataObject> result = new RTree<Integer, DataObject>();
+        List<Node> nodes = null;
+        //TODO
+        Integer r = null;
+        for(Integer i = 1; i < r; ++i){
+            if(rect.contains(mbrh(i),null)){
+                Node N = bp(i);
+                nodes.add(N);
+                break;
             }
         }
 
-        return distance;
-    }
-
-    public Double distAvg(DataObject q, QualifiedWindow qwin) {
-        Double distance = 0.0;
-
-        for (DataObject p: qwin.getSqwin()) {
-            //euclidian distance
-            distance = distance + euclidianDistance(p,q);
+        List<Object> Ni = new ArrayList<Object>();
+        for(Object item : Ni){
+            Object mbr0j;
+            if(rect.intersect(null) != null){
+                nodes.add((Node) item);
+            }
         }
 
-        return distance/qwin.getQwin().getNumDataObjects();
+        for (Node n: nodes) {
+            //TODO???
+            result.add((Entry) n);
+        }
+
+        return result;
+    }*/
+
+    /*private Node bp(Integer i) {
+        throw new UnsupportedOperationException();
     }
 
-    //TODO
+    private Double mbrh(Integer i) {
+        throw new UnsupportedOperationException();
+    }
+
     //Legközelebbi pont a qualified window-ban q-hoz, ami lefedi a {p1,..pn}-t
     public Double distNearest(DataObject q, QualifiedWindow qwin){
         //minVqwin<-qwins(MINDIST(q,qwin))
@@ -89,38 +218,5 @@ public class NWC {
         while(nearestQwin != null);
         //7
         return objs;
-    }
-
-    //Properties: az ablakban legalább egy objektum a függőleges és egy objektum a vízszintes élen helyezkedik el
-    //NWC
-    // eljut minden data object-hez távolság szerint növekvő sorrendben q-ból
-    // a data object-ek R-tree-val indexeltek TODO: R-tree
-
-    public ArrayList<DataObject> NWC(NWCQuery nwcq, PriorityQueue pq){
-        Double distBest = Double.MAX_VALUE;
-        ArrayList<DataObject> objs = new ArrayList<DataObject>();
-
-        return objs;
-    }
-
-    public Boolean isPrunedByDEP(Rectangle rect, Integer n){
-        Integer ub = 0;
-        ///TODO
-
-
-        if (ub < n){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public ArrayList<DataObject> IWP(Rectangle rect){
-        ArrayList<DataObject> result = new ArrayList<DataObject>();
-        Integer nodes = 0;
-
-
-
-        return result;
-    }
+    }*/
 }

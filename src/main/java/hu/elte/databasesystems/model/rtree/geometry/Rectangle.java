@@ -42,6 +42,10 @@ public class Rectangle implements Geometry {
         return (x2-x1)*(y2-y1);
     }
 
+    public Double distance(Geometry g) {
+        throw new UnsupportedOperationException();
+    }
+
     public Double getX1() {
         return x1;
     }
@@ -87,5 +91,10 @@ public class Rectangle implements Geometry {
                 ", x2=" + x2 +
                 ", y2=" + y2 +
                 '}';
+    }
+
+    //TODO
+    public Object intersect(Object o) {
+        throw new UnsupportedOperationException();
     }
 }

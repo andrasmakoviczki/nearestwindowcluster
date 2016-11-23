@@ -1,5 +1,6 @@
 package hu.elte.databasesystems;
 
+import hu.elte.databasesystems.model.NWC;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,6 +14,7 @@ public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
     public static void main(String[] args) throws Exception {
+        NWC nwc = new NWC();
         launch(args);
     }
 
@@ -26,7 +28,7 @@ public class MainApp extends Application {
         Parent rootNode = loader.load(getClass().getResourceAsStream(fxmlFile));
 
         log.debug("Showing JFX scene");
-        Scene scene = new Scene(rootNode, 600, 600);
+        Scene scene = new Scene(rootNode, 720, 700);
         scene.getStylesheets().add("/styles/styles.css");
 
         stage.setTitle("Nearest Window Cluster Queries");

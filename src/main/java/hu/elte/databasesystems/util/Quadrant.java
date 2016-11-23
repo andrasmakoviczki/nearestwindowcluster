@@ -1,4 +1,4 @@
-package hu.elte.databasesystems.model;
+package hu.elte.databasesystems.util;
 
 /**
  * Created by Andras Makoviczki on 2016. 11. 17.

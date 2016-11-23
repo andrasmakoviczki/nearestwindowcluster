@@ -1,12 +1,10 @@
 package hu.elte.databasesystems;
 
 import hu.elte.databasesystems.model.DataObject;
+import hu.elte.databasesystems.model.NWC;
+import hu.elte.databasesystems.model.QualifiedWindow;
 import hu.elte.databasesystems.model.RTree;
-import hu.elte.databasesystems.model.rtree.Entry;
-import hu.elte.databasesystems.model.rtree.geometry.Geometry;
-import hu.elte.databasesystems.model.rtree.geometry.Point;
-import hu.elte.databasesystems.model.rtree.geometry.Rectangle;
-import hu.elte.databasesystems.util.Plot;
+import hu.elte.databasesystems.view.Plot;
 import hu.elte.databasesystems.util.ReadFromFile;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -18,10 +16,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
@@ -30,11 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
-
-import static java.lang.Math.abs;
 
 /**
  * Created by Andras Makoviczki on 2016. 11. 16.
@@ -42,61 +35,26 @@ import static java.lang.Math.abs;
 public class AppController implements Initializable {
     private static final Logger log = LoggerFactory.getLogger(AppController.class);
 
+    private QualifiedWindow qwin;
+    private RTree tree;
+
+
+    @FXML private TextField numObjText;
+    @FXML private TextField lengthText;
+    @FXML private TextField widthText;
+
     @FXML private MenuItem loadMenuItem;
     @FXML private MenuItem closeAppItem;
     @FXML private Stage stage;
     @FXML private Plot plot;
     @FXML private StatusBar statusBar;
+    @FXML private Button startButton;
+
     private GraphicsContext gc;
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        test();
         initPlot(500,8);
-    }
-
-    public void test(){
-        /*Entry<Integer, DataObject> e1 = new Entry<Integer, DataObject>(1,new DataObject(1,2,"alma"));
-        Entry<Integer, DataObject> e2 = new Entry<Integer, DataObject>(2,new DataObject(2,5,"korte"));
-        Entry<Integer, DataObject> e3 = new Entry<Integer, DataObject>(1,new DataObject(3,2,"szilva"));
-        Entry<Integer, DataObject> e4 = new Entry<Integer, DataObject>(2,new DataObject(4,5,"barack"));
-        Entry<Integer, DataObject> e5 = new Entry<Integer, DataObject>(1,new DataObject(5,2,"eper"));
-        Entry<Integer, DataObject> e6 = new Entry<Integer, DataObject>(2,new DataObject(6,5,"szolo"));
-
-        RTree<Object, Rectangle> tree = new RTree();
-        tree.add(e1);
-        tree.add(e2);
-        tree.add(e3);
-        tree.add(e4);
-        tree.add(e5);
-        tree.add(e6);*/
-
-        /*DataObject[] points = { new DataObject(-5,-6,""),new DataObject(-1,3,""),
-                new DataObject(4,4,""),new DataObject(-6,-3,""),new DataObject(8,-10,""),
-                new DataObject(5,4,""),new DataObject(-5,4,""),new DataObject(7,-2,""),
-                new DataObject(-6,3,""),new DataObject(8,9,"") };*/
-
-        /*{ new DataObject(1, 2,"alma"), new DataObject(2, 5,"korte"), new DataObject(36, 60,"szilva"),
-                new DataObject(57, 36,"barack"), new DataObject(14, 37,"eper") };*/
-
-        /*RTree<Integer, DataObject> tree = new RTree();
-        for (int i = 0; i < points.length; i++) {
-            DataObject point = points[i];
-            System.out.println("point(" + point.getX() + "," + point.getY() + "), value=" + (i + 1));
-            tree.add(i + 1, point);
-        }
-
-        for (DataObject dao: tree) {
-            System.out.println(dao);
-        }*/
-
-        //System.out.println(tree.getGeometry());
-        //System.out.println(tree.getRoot().size());
-        //System.out.println(tree.toString());
-
-        ReadFromFile loadFile = new ReadFromFile(new File("C:\\Users\\andris.DESKTOP-BQJ4DSD\\Desktop\\test2.txt"));
-        RTree<Integer,DataObject> objs = loadFile.ParseFile(":");
-        loadPoints(objs);
     }
 
     private void initPlot(Integer defaultSize, Integer range) {
@@ -132,8 +90,8 @@ public class AppController implements Initializable {
         );
 
         Canvas _canvas = plot.getCanvas();
-        _canvas.setWidth(_defaultSize+10);
-        _canvas.setHeight(_defaultSize+10);
+        _canvas.setWidth(_defaultSize+50);
+        _canvas.setHeight(_defaultSize+50);
 
         gc = _canvas.getGraphicsContext2D();
 
@@ -162,13 +120,13 @@ public class AppController implements Initializable {
         if(label != null){
             gc.setStroke(Color.BLACK);
             gc.setFill(Color.BLACK);
-            gc.setLineWidth(0.5);
+            gc.setLineWidth(0.25);
             gc.strokeText(label,fromOriginX + 5, fromOriginY - 5);
         }
 
         gc.setStroke(color);
         gc.setFill(color);
-        gc.setLineWidth(1);
+        gc.setLineWidth(2);
         gc.strokeOval(fromOriginX,fromOriginY,1,1);
     }
 
@@ -178,13 +136,15 @@ public class AppController implements Initializable {
     }
 
     public void loadPoints(RTree<Integer,DataObject> loadedObjects){
-        System.out.println(loadedObjects.toString());
-        //System.out.println(loadedObjects.getGeometry(39));
-        //System.out.println(loadedObjects.getGeometry(12));
-        /*for (DataObject data: loadedObjects) {
-            System.out.println(data);
-            //drawPoint(data.getX(),data.getY());
-        }*/
+        for (DataObject data: loadedObjects) {
+            drawPoint(data.getX(),data.getY());
+        }
+    }
+
+    public void loadPoints(RTree<Integer,DataObject> loadedObjects,Boolean label){
+        for (DataObject data: loadedObjects) {
+            drawPoint(data.getX(),data.getY(),label);
+        }
     }
 
     public void handleLoadButton(ActionEvent actionEvent) {
@@ -196,11 +156,39 @@ public class AppController implements Initializable {
 
         if (file != null) {
             ReadFromFile loadFile = new ReadFromFile(file);
-            RTree<Integer,DataObject> objs = loadFile.ParseFile(":");
-            createPlot(objs,loadFile.getAbsMaxValue());
-            loadPoints(objs);
+            this.tree = loadFile.ParseFile(":");
+            tree.setParents();
+            createPlot(tree,loadFile.getAbsMaxValue());
+            loadPoints(tree);
             statusBar.setText("Loaded: " + loadFile.getTotalLoaded().toString() + " objects");
         }
+    }
+
+
+    public void drawWindow(QualifiedWindow qwin){
+        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getxAxis().getUpperBound());
+        Double fromOriginX = plot.getPane().getPrefWidth() / 2 + qwin.getR().getLeftTop().getX() * unit;
+        Double fromOriginY = plot.getPane().getPrefHeight() / 2 - qwin.getR().getLeftTop().getY() * unit;
+
+        gc.setStroke(Color.GOLD);
+        gc.setFill(Color.GOLD);
+        gc.setLineWidth(0.5);
+        gc.setLineDashes(0,0);
+
+        gc.strokeRect(fromOriginX,fromOriginY,qwin.getSearchRegion().getLength()*unit,qwin.getSearchRegion().getWidth()*unit);
+    }
+
+    public void drawSearchRegion(QualifiedWindow qwin){
+        Double unit = plot.getPane().getPrefWidth() / (2 * plot.getxAxis().getUpperBound());
+        Double fromOriginX = plot.getPane().getPrefWidth() / 2 + qwin.getR().getLeftTop().getX() * unit;
+        Double fromOriginY = plot.getPane().getPrefHeight() / 2 - qwin.getR().getLeftTop().getY() * unit;
+
+        gc.setStroke(Color.BLACK);
+        gc.setFill(Color.BLACK);
+        gc.setLineWidth(0.5);
+        gc.setLineDashes(5,5);
+
+       gc.strokeRect(fromOriginX,fromOriginY,qwin.getLength()*unit,qwin.getWidth()*unit);
     }
 
 
@@ -210,10 +198,34 @@ public class AppController implements Initializable {
     }
 
     public void handleStartButton(ActionEvent actionEvent) {
-        initPlot(500,20);
-        /*for (int i = 0; i < 10; ++i) {
-            Button button = new Button();
-            buttonGrid.add(button, i, 1);
-        }*/
+        if (tree == null) {
+            statusBar.setText("Load some files!");
+        } else {
+            if(widthText.getText().equals("") || lengthText.getText().equals("") || numObjText.getText().equals("") ) {
+                statusBar.setText("Fill the fields!");
+            } else {
+                String s1 = widthText.getText();
+                String s2  = lengthText.getText();
+                String s3 = numObjText.getText();
+
+                Integer width = Integer.parseInt(s1);
+                Integer length = Integer.parseInt(s2);
+                Integer num = Integer.parseInt(s3);
+
+                NWC nwc = new NWC();
+                QualifiedWindow qwin = nwc.run(tree,width,length,num);
+                if (qwin != null) {
+                    gc.clearRect(0, 0, plot.getPrefWidth(), plot.getPrefWidth());
+                    drawPoint(0, 0, "q", Color.RED);
+                    loadPoints(qwin.getSqwin(), true);
+                    drawSearchRegion(qwin);
+                    drawWindow(qwin);
+                    statusBar.setText("Min distance: " + nwc.getDistBest() + "\t Number of objects: " + qwin.getSqwin().getSize());
+                } else {
+                    statusBar.setText("Not found!");
+                }
+
+            }
+        }
     }
 }

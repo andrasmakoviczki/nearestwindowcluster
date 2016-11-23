@@ -7,4 +7,5 @@ public interface Geometry {
     public Rectangle mbr();
     public Double perimeter();
     public Double area();
+    public Double distance(Geometry g);
 }

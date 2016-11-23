@@ -61,7 +61,8 @@ public class ReadFromFile {
                 String name = (st.nextElement().toString());
 
                 DataObject dataObj = new DataObject(x,y,name);
-                dataObj.setQuadrant(x,y);
+                dataObj.setQuadrant();
+                dataObj.setEdge();
                 d.setDistance(x,y,0,0);
                 dataObj.setDistance(d.getDistance());
 

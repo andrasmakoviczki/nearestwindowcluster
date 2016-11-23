@@ -1,5 +1,8 @@
 package hu.elte.databasesystems.util;
 
+import hu.elte.databasesystems.model.DataObject;
+import hu.elte.databasesystems.model.QualifiedWindow;
+
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -19,6 +22,6 @@ public class euclidianDistance implements Distance {
 
 
     public void setDistance(Integer x1, Integer y1, Integer x2, Integer y2) {
-        distance = sqrt(pow(x1-x2,2) + pow(y1-y2,2));
+        distance = sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
     }
 }

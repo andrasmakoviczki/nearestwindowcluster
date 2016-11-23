@@ -1,4 +1,4 @@
-package hu.elte.databasesystems.util;
+package hu.elte.databasesystems.view;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

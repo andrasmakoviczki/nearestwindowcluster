@@ -16,13 +16,14 @@ public class NonLeafNode<T,S extends Geometry> implements Node{
     private List<Node<T,S>> children;
     private Rectangle mbr;
     private Context context;
-    private Integer finished;
+    private Node parent;
+    private Boolean traversed;
 
     public NonLeafNode(List<Node<T,S>> children, Context context) {
         this.children = children;
         this.context = context;
         this.mbr = Util.mbr(children);
-        this.finished = 0;
+        this.traversed = false;
     }
 
     public List<Node<T,S>> copyNodeList(List<Node<T,S>> list){
@@ -60,13 +61,19 @@ public class NonLeafNode<T,S extends Geometry> implements Node{
 
         if (children2.size() <= context.getMaxChildren()) {
             List<Node<T,S>> childList = new ArrayList<Node<T, S>>();
-            childList.add(new NonLeafNode<T, S>(children2,context));
+            NonLeafNode<T,S> node = new NonLeafNode<T, S>(children2,context);
+            node.setParent(getParent());
+            childList.add(node);
             return childList;
         } else {
             ListPair<Node<T,S>> pair = context.getSplitter().split(children2,context.getMinChildren());
             List<Node<T,S>> childList = new ArrayList<Node<T,S>>();
-            childList.add(new NonLeafNode<T,S>(pair.getGroup1().getList(),context));
-            childList.add(new NonLeafNode<T,S>(pair.getGroup2().getList(),context));
+            NonLeafNode<T,S> node1 = new NonLeafNode<T,S>(pair.getGroup1().getList(),context);
+            NonLeafNode<T,S> node2 = new NonLeafNode<T,S>(pair.getGroup2().getList(),context);
+            node1.setParent(getParent());
+            node2.setParent(getParent());
+            childList.add(node1);
+            childList.add(node2);
             return childList;
         }
     }
@@ -91,9 +98,26 @@ public class NonLeafNode<T,S extends Geometry> implements Node{
         return children.size();
     }
 
-    public void traversed() {
-        finished = finished + 1;
+    public void setTraversed() {
+        this.traversed = true;
     }
+
+    public void resetTraversed() {
+        this.traversed = false;
+    }
+
+    public Boolean isTraversed() {
+        return traversed;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
+    }
+
 
     public Node<T,S> getChild(Integer i){
         return children.get(i);
@@ -125,13 +149,5 @@ public class NonLeafNode<T,S extends Geometry> implements Node{
 
     public Geometry geometry() {
         return mbr;
-    }
-
-    public Integer getFinished() {
-        return finished;
-    }
-
-    public void setFinished(Integer finished) {
-        this.finished = finished;
     }
 }

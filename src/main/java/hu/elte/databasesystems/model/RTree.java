@@ -32,34 +32,47 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
     }
 
     public S getGeometry(Integer index){
-        return getGeometry(index,getRoot(),null,0);
+        return getGeometry(index,getRoot());
     }
 
-    public S getGeometry(Integer index,Node<T,S> node,Node<T,S> parent,Integer finished){
-        S obj = null;
-
-        if(node instanceof NonLeafNode){
-            Node<T,S> nonLeafParent = parent;
-
-            if(((NonLeafNode) node).getFinished() >= node.size()){
-                ((NonLeafNode) node).getChildren();
+    public void resetTraversed(Node<T,S> node,Node<T,S> parent){
+        if (node instanceof NonLeafNode) {
+            NonLeafNode<T, S> n = (NonLeafNode<T, S>) node;
+            for (int i = 0; i < n.size(); i++) {
+                Node<T, S> child = n.getChild(i);
+                child.resetTraversed();
+                resetTraversed(child,n);
             }
+        } else {
+            LeafNode<T, S> leaf = (LeafNode<T, S>) node;
+            leaf.resetTraversed();
+        }
+    }
 
-            for (Integer i = ((NonLeafNode) node).getFinished(); i < node.size(); i++) {
-                return obj = (S) getGeometry(index,((NonLeafNode) node).getChild(i),node,i);
+    public void resetTraversed(){
+        resetTraversed(getRoot(),null);
+    }
+
+    public S getGeometry(Integer index,Node<T,S> node){
+         if(node instanceof NonLeafNode){
+            for (Integer i = 0; i < node.size(); i++) {
+                if (!((NonLeafNode) node).getChild(i).isTraversed()){
+                    return (S) getGeometry(index,((NonLeafNode) node).getChild(i));
+                }
             }
-            //nonLeafParent.traversed();
-            return obj = (S) getGeometry(index,nonLeafParent,null,finished + 1);
+            node.setTraversed();
+            return (S) getGeometry(index,node.getParent());
+
         } else if (node instanceof LeafNode){
             if(index < node.size()){
-                return obj = (S) ((LeafNode) node).getEntry(index).getGeomerty();
+                resetTraversed();
+                return (S) ((LeafNode) node).getEntry(index).getGeomerty();
             } else {
-                //parent.traversed();
-                return obj = getGeometry(index - node.size(),parent,null,finished + 1);
+                node.setTraversed();
+                return getGeometry(index - node.size(),node.getParent());
             }
-
         }
-        return obj;
+        return null;
     }
 
     public Node<T,S> getRoot() {
@@ -87,6 +100,7 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
             //TODO
             List<Node<T,S>> nodes = root.add(entry);
             Node<T,S> node;
+
             if(nodes.size() == 1){
                 root = nodes.get(0);
             } else {
@@ -101,6 +115,24 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
         size = size + 1;
     }
 
+    public void setParents(){
+        setParents(getRoot(),null);
+    }
+
+    public void setParents(Node<T,S> node,Node<T,S> parent) {
+        if (node instanceof NonLeafNode) {
+            NonLeafNode<T, S> n = (NonLeafNode<T, S>) node;
+            for (int i = 0; i < n.size(); i++) {
+                Node<T, S> child = n.getChild(i);
+                child.setParent(n);
+                setParents(child,n);
+            }
+        } else {
+            LeafNode<T, S> leaf = (LeafNode<T, S>) node;
+            leaf.setParent(parent);
+        }
+    }
+
     public void add(Iterable<Entry<T, S>> entries) {
         RTree<T, S> tree = this;
         for (Entry<T, S> entry : entries)
@@ -108,14 +140,9 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
     }
 
     public void delete(){
-        //TODO
-        if(root != null){
-            if(1==0){
-            } else {
-                size = size - 0 - 0;
-            }
-        }
+        throw new UnsupportedOperationException();
     }
+
     public void search(){}
 
     @Override
@@ -153,6 +180,8 @@ public class RTree<T,S extends Geometry> implements Iterable<S> {
         }
         return s.toString();
     }
+
+
 
     public Iterator<S> iterator() {
         return new RTreeIteator<S>();

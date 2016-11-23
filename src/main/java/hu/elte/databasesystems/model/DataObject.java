@@ -1,6 +1,8 @@
 package hu.elte.databasesystems.model;
 
 import hu.elte.databasesystems.model.rtree.geometry.Point;
+import hu.elte.databasesystems.util.Edge;
+import hu.elte.databasesystems.util.Quadrant;
 
 /**
  * Created by Andras Makoviczki on 2016. 11. 07.
@@ -9,12 +11,20 @@ public class DataObject extends Point{
 
     private String name;
     private Quadrant quadrant;
+    private Edge edge;
     private Double distance;
 
     public DataObject(Integer x, Integer y, String name) {
         super(x,y);
         this.name = name;
     }
+
+    public DataObject(Integer x, Integer y) {
+        super(x,y);
+        this.name = "";
+    }
+
+
 
     @Override
     public String toString() {
@@ -43,20 +53,41 @@ public class DataObject extends Point{
         this.quadrant = quadrant;
     }
 
-    public void setQuadrant(Integer x, Integer y){
-        if(x > 0 && y > 0)
-        {
+    public void setQuadrant(){
+        if(getX() > 0 && getY() > 0){
             quadrant = Quadrant.FIRST;
-        } else if(x > 0 && y < 0){
+        } else if(getX() > 0 && getY() < 0){
             quadrant = Quadrant.FOURTH;
-        } else if(x < 0 && y > 0){
+        } else if(getX() < 0 && getY() > 0){
             quadrant = Quadrant.SECOND;
-        } else if (x < 0 && y < 0){
+        } else if (getX() < 0 && getY() < 0){
             quadrant = Quadrant.THIRD;
         } else {
             quadrant= Quadrant.ORIGO;
         }
+    }
 
+    public Edge getEdge() {
+        return edge;
+    }
+
+    public void setEdge() {
+        switch (quadrant){
+            case FIRST:
+                edge = Edge.RIGHT;
+                break;
+            case SECOND:
+                edge = Edge.LEFT;
+                break;
+            case THIRD:
+                edge = Edge.LEFT;
+                break;
+            case ORIGO:
+                break;
+            case FOURTH:
+                edge = Edge.RIGHT;
+                break;
+        }
     }
 
     public Double getDistance() {
